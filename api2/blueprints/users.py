@@ -1,5 +1,4 @@
-from flask import jsonify, request
-from werkzeug.security import generate_password_hash
+from flask import jsonify, request, abort, make_response
 
 from api2 import db
 from api2.blueprints import bp_api
@@ -19,30 +18,32 @@ def get_all_users():
 def get_user(user_id):
     user = User.query.filter_by(user_id).first()
     if not user:
-        return jsonify({'error': f'No such {user_id} user_id'})
+        return abort(404, description='No such a user')
 
     schema = UserSchema()
-    output = schema.dump(user)
-    return jsonify(output)
+    return jsonify(schema.dump(user))
 
 
 @bp_api.route('/user/<int:user_id>/update', methods=['PATCH'])
 def user_update(user_id):
-    user = User.query.filter_by(user_id).first()
+    user = User.query.filter(User.id == user_id).first()
     data = request.json
     if not user:
-        return jsonify({'error': f'No such {user_id} user'})
+        return abort(404, description='No such a user')
 
     user.username = data['username']
     user.email = data['email']
+
+    db.session.add(user)
     db.session.commit()
+
     schema = UserSchema()
     return schema.jsonify(user)
 
 
 @bp_api.route('/user/<int:user_id>/delete', methods=['DELETE'])
 def user_delete(user_id):
-    user = User.query.filter_by(id=user_id).first()
+    user = User.query.filter(User.id == user_id).first()
     if not user:
         return jsonify({'error': f'No such {user_id} user'})
 
@@ -56,11 +57,11 @@ def user_create():
     data = request.json
     user = User(
         username=data['username'],
-        password_hash=generate_password_hash(data['password_hash']),
         email=data['email']
     )
 
     db.session.add(user)
     db.session.commit()
+
     schema = UserSchema()
-    return schema.jsonify(user)
+    return make_response(jsonify({'data': schema.dump(user)}, 201))

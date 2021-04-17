@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, abort, make_response
 
 from api2 import db
 from api2.blueprints import bp_api
@@ -14,38 +14,40 @@ def get_list():
     return jsonify(output)
 
 
-@bp_api.route('/post/<int:post_id>/get', methods=['GET'])
+@bp_api.route('/posts/<int:post_id>/get', methods=['GET'])
 def get_one_post(post_id):
-    post = Post.query.filter_by(id=post_id).first()
+    post = Post.query.filter(Post.id == post_id).first()
     if not post:
-        return jsonify({'error': 'No such post'})
+        return abort(404, description=f'No post with such id')
 
     post_schema = PostSchema()
     output = post_schema.dump(post)
     return jsonify(output)
 
 
-@bp_api.route('/post/<int:post_id>/update', methods=['PATCH'])
+@bp_api.route('/posts/<int:post_id>/update', methods=['PATCH'])
 def update_post(post_id):
-    post = Post.query.filter_by(id=post_id).first()
+    post = Post.query.filter(Post.id == post_id).first()
     data = request.json
 
     if not post:
-        return jsonify({'error': 'No such post'})
+        return abort(404, description=f'No post with such id')
 
     post.title = data['title']
+    post.description = data['description']
+    db.session.add(post)
     db.session.commit()
 
     post_schema = PostSchema()
     return post_schema.jsonify(post)
 
 
-@bp_api.route('/post/<int:post_id>/delete', methods=['DELETE'])
+@bp_api.route('/posts/<int:post_id>/delete', methods=['DELETE'])
 def delete_post(post_id):
     post = Post.query.filter_by(id=post_id).first()
 
     if not post:
-        return jsonify({'error': 'No such post'})
+        return abort(404, description='No post with such id')
 
     db.session.delete(post)
     db.session.commit()
@@ -53,14 +55,16 @@ def delete_post(post_id):
     return jsonify({'message': f'Post with {post_id} id was deleted'})
 
 
-@bp_api.route('/post/create', methods=['POST'])
+@bp_api.route('/posts/create', methods=['POST'])
 def add_post():
     data = request.json
     post = Post(
-        title=data['title']
+        title=data['title'],
+        description=data['description']
     )
+
     db.session.add(post)
     db.session.commit()
 
     post_schema = PostSchema()
-    return post_schema.jsonify(post)
+    return post_schema.dump(post), 201
