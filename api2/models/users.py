@@ -29,4 +29,4 @@ class UserSchema(ma.Schema):
     id = fields.Int(dump_only=True)
     username = fields.String(validate=validate.Length(min=3), required=True)
     email = fields.Email(required=True, validate=validate.Length(100))
-    password_hash = fields.String(validate=validate.Length(128))
+    password_hash = fields.String(validate=validate.Length(128), dump_only=True)
