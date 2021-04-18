@@ -1,4 +1,4 @@
-from marshmallow import fields, validate
+from marshmallow import fields, validate, EXCLUDE
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from api2 import db, ma
@@ -22,9 +22,11 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 
-class UserSchema(ma.SQLAlchemyAutoSchema):
+class UserSchema(ma.Schema):
     class Meta:
-        model = User
+        unknown = EXCLUDE
 
+    id = fields.Int(dump_only=True)
     username = fields.String(validate=validate.Length(min=3), required=True)
     email = fields.Email(required=True, validate=validate.Length(100))
+    password_hash = fields.String(validate=validate.Length(128))
