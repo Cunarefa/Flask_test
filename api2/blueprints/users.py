@@ -28,18 +28,20 @@ def get_user(user_id):
 @bp_api.route('/users/<int:user_id>/update', methods=['PATCH'])
 def user_update(user_id):
     user = User.query.filter(User.id == user_id).first()
-    data = request.json
 
     if not user:
         return abort(404, f'No such {user_id} user_id')
 
+    user_schema = UserSchema()
+
+    json_data = request.json
+    data = user_schema.load(json_data)
     user.query.update(data)
 
     db.session.add(user)
     db.session.commit()
 
-    user_schema = UserSchema()
-    return user_schema.jsonify(user)
+    return jsonify(user_schema.dump(user))
 
 
 @bp_api.route('/users/<int:user_id>/delete', methods=['DELETE'])
@@ -67,4 +69,4 @@ def user_create():
     db.session.commit()
 
     schema = UserSchema()
-    return schema.jsonify(user)
+    return jsonify(schema.dump(user))

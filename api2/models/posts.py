@@ -24,7 +24,7 @@ class PostSchema(ma.Schema):
         unknown = EXCLUDE
 
     id = fields.Int(dump_only=True)
-    title = fields.String(validate=validate.Length(max=255), required=True)
+    title = fields.String(validate=validate.Length(max=255))
     description = fields.String(validate=validate.Length(max=500))
     inserted_at = fields.Date(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
