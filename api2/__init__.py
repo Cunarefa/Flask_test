@@ -20,7 +20,7 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
 
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    app.config['JWT_SECRET_KEY'] = '80279f176a7496afaebead6d3be55dcf'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Actimel13@localhost:5433/avada2'
 
@@ -33,7 +33,7 @@ def create_app():
     from api2.blueprints import bp_api, bp_auth
 
     app.register_blueprint(bp_api, url_prefix='/api')
-    app.register_blueprint(bp_auth, url_prefix='/auth')
+    app.register_blueprint(bp_auth, url_prefix='/api/auth')
 
     return app
 
