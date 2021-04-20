@@ -1,4 +1,4 @@
-from flask import request, jsonify, abort, make_response
+from flask import request, abort
 from marshmallow import ValidationError
 
 from api2 import db
@@ -32,7 +32,6 @@ def update_post(post_id):
         return abort(404, description='No post with such id')
 
     post_schema = PostSchema()
-
     json_data = request.json
     try:
         data = post_schema.load(json_data)
@@ -40,10 +39,8 @@ def update_post(post_id):
         return abort(400, description='Invalid data type. Expected "string".')
 
     post.query.update(data)
-
     db.session.add(post)
     db.session.commit()
-
     return post_schema.dump(post)
 
 
@@ -79,5 +76,4 @@ def add_post():
 
     db.session.add(post)
     db.session.commit()
-
     return post_schema.dump(post), 201

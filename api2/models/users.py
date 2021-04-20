@@ -1,9 +1,6 @@
 import datetime
-
 from flask_jwt_extended import create_access_token
 from marshmallow import fields, validate, EXCLUDE
-from werkzeug.security import generate_password_hash, check_password_hash
-
 from api2 import db, ma
 
 
@@ -29,6 +26,6 @@ class UserSchema(ma.Schema):
         unknown = EXCLUDE
 
     id = fields.Int(dump_only=True)
-    username = fields.String(validate=validate.Length(min=3))
-    email = fields.Email(validate=validate.Length(max=100))
-    password = fields.String(validate=validate.Length(max=128), load_only=True)
+    username = fields.String(required=True, validate=validate.Length(min=3))
+    email = fields.Email(required=True, validate=validate.Length(max=100))
+    password = fields.String(required=True, validate=validate.Length(max=128), load_only=True)
