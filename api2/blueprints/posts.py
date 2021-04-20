@@ -11,7 +11,7 @@ from api2.models.posts import PostSchema
 def get_list():
     posts = Post.query.all()
     post_schema = PostSchema(many=True)
-    return jsonify(post_schema.dump(posts))
+    return post_schema.dump(posts)
 
 
 @bp_api.route('/posts/<int:post_id>/get', methods=['GET'])
@@ -21,7 +21,7 @@ def get_one_post(post_id):
         return abort(404, description='No post with such id')
 
     post_schema = PostSchema()
-    return jsonify(post_schema.dump(post))
+    return post_schema.dump(post)
 
 
 @bp_api.route('/posts/<int:post_id>/update', methods=['PATCH'])
@@ -34,14 +34,17 @@ def update_post(post_id):
     post_schema = PostSchema()
 
     json_data = request.json
-    data = post_schema.load(json_data)
+    try:
+        data = post_schema.load(json_data)
+    except ValidationError:
+        return abort(400, description='Invalid data type. Expected "string".')
 
     post.query.update(data)
 
     db.session.add(post)
     db.session.commit()
 
-    return jsonify(post_schema.dump(post))
+    return post_schema.dump(post)
 
 
 @bp_api.route('/posts/<int:post_id>/delete', methods=['DELETE'])
@@ -54,12 +57,19 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
 
-    return jsonify({'message': f'Post with {post_id} id was deleted'})
+    return make_response(f'Post with {post_id} id was deleted', 204)
 
 
 @bp_api.route('/posts/create', methods=['POST'])
 def add_post():
-    data = request.json
+    json_data = request.json
+
+    post_schema = PostSchema()
+    try:
+        data = post_schema.load(json_data)
+    except ValidationError:
+        return abort(400, description='Invalid data type one of a fields.')
+
     post = Post(
         title=data['title'],
         description=data['description'],
@@ -70,5 +80,4 @@ def add_post():
     db.session.add(post)
     db.session.commit()
 
-    post_schema = PostSchema()
-    return make_response(post_schema.dump(post), 201)
+    return post_schema.dump(post), 201

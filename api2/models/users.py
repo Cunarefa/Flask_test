@@ -13,7 +13,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
     email = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(128))
+    password = db.Column(db.String(128), nullable=False)
 
     def __repr__(self):
         return f'User - {self.username}'
@@ -37,4 +37,4 @@ class UserSchema(ma.Schema):
     id = fields.Int(dump_only=True)
     username = fields.String(validate=validate.Length(min=3))
     email = fields.Email(required=True, validate=validate.Length(100))
-    password_hash = fields.String(validate=validate.Length(128), load_only=True)
+    password = fields.String(validate=validate.Length(128), load_only=True)
