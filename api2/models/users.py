@@ -18,12 +18,6 @@ class User(db.Model):
     def __repr__(self):
         return f'User - {self.username}'
 
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
-
     def create_jwt_token(self):
         token = create_access_token(
             identity=self.username, expires_delta=datetime.timedelta(days=1))
@@ -36,5 +30,5 @@ class UserSchema(ma.Schema):
 
     id = fields.Int(dump_only=True)
     username = fields.String(validate=validate.Length(min=3))
-    email = fields.Email(required=True, validate=validate.Length(100))
-    password = fields.String(validate=validate.Length(128), load_only=True)
+    email = fields.Email(validate=validate.Length(max=100))
+    password = fields.String(validate=validate.Length(max=128), load_only=True)

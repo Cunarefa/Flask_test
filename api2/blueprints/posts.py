@@ -57,7 +57,7 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
 
-    return make_response(f'Post with {post_id} id was deleted', 204)
+    return {'message': f'Post with {post_id} id was deleted'}, 204
 
 
 @bp_api.route('/posts/create', methods=['POST'])
