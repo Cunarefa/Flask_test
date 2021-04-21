@@ -1,4 +1,5 @@
-from flask import request, jsonify, abort, make_response
+from flask import request, abort
+from marshmallow import ValidationError
 
 from api2 import db
 from api2.blueprints import bp_api
@@ -10,41 +11,42 @@ from api2.models.posts import PostSchema
 def get_list():
     posts = Post.query.all()
     post_schema = PostSchema(many=True)
-    output = post_schema.dump(posts)
-    return jsonify(output)
+    return post_schema.dump(posts)
 
 
 @bp_api.route('/posts/<int:post_id>/get', methods=['GET'])
 def get_one_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
     if not post:
-        return abort(404, description=f'No post with such id')
+        return abort(404, description='No post with such id')
 
     post_schema = PostSchema()
-    output = post_schema.dump(post)
-    return jsonify(output)
+    return post_schema.dump(post)
 
 
 @bp_api.route('/posts/<int:post_id>/update', methods=['PATCH'])
 def update_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
-    data = request.json
 
     if not post:
-        return abort(404, description=f'No post with such id')
-
-    post.title = data['title']
-    post.description = data['description']
-    db.session.add(post)
-    db.session.commit()
+        return abort(404, description='No post with such id')
 
     post_schema = PostSchema()
-    return post_schema.jsonify(post)
+    json_data = request.json
+    try:
+        data = post_schema.load(json_data)
+    except ValidationError:
+        return abort(400, description='Invalid data type. Expected "string".')
+
+    post.query.update(data)
+    db.session.add(post)
+    db.session.commit()
+    return post_schema.dump(post)
 
 
 @bp_api.route('/posts/<int:post_id>/delete', methods=['DELETE'])
 def delete_post(post_id):
-    post = Post.query.filter_by(id=post_id).first()
+    post = Post.query.filter(Post.id == post_id).first()
 
     if not post:
         return abort(404, description='No post with such id')
@@ -52,19 +54,26 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
 
-    return jsonify({'message': f'Post with {post_id} id was deleted'})
+    return {'message': f'Post with {post_id} id was deleted'}, 204
 
 
 @bp_api.route('/posts/create', methods=['POST'])
 def add_post():
-    data = request.json
+    json_data = request.json
+
+    post_schema = PostSchema()
+    try:
+        data = post_schema.load(json_data)
+    except ValidationError:
+        return abort(400, description='Invalid data type one of a fields.')
+
     post = Post(
         title=data['title'],
-        description=data['description']
+        description=data['description'],
+        type=data['type'],
+        priority=data['priority']
     )
 
     db.session.add(post)
     db.session.commit()
-
-    post_schema = PostSchema()
     return post_schema.dump(post), 201
