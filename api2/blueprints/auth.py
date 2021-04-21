@@ -29,9 +29,10 @@ def register():
     except ValidationError as err:
         return abort(400, description=err)
 
-    generate_password_hash(data['password'])
+    data['password'] = generate_password_hash(data['password'])
     user = User(**data)
     db.session.add(user)
     db.session.commit()
 
-    return login(user)
+    token = user.create_jwt_token()
+    return {"token": token}
