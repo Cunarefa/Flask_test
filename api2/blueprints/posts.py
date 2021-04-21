@@ -12,17 +12,15 @@ def get_list():
     posts = Post.query.all()
     post_schema = PostSchema(many=True)
 
-    if request.args:
-        priority = request.args.get('priority')
-        post_type = request.args.get('type')
+    priority = request.args.get('priority')
+    post_type = request.args.get('type')
 
-        querys = []
-        if post_type:
-            querys.append(Post.type == post_type)
-        elif priority:
-            querys.append(Post.priority == priority)
-        priority_filter = Post.query.filter(*querys)
-        return jsonify(post_schema.dump(priority_filter))
+    if post_type:
+        filtered_posts = Post.query.filter(Post.type == post_type)
+        return jsonify(post_schema.dump(filtered_posts))
+    elif priority:
+        filtered_posts = Post.query.filter(Post.priority == priority)
+        return jsonify(post_schema.dump(filtered_posts))
 
     return jsonify(post_schema.dump(posts))
 
