@@ -1,4 +1,5 @@
 from flask import request, abort, jsonify
+from flask_jwt_extended import jwt_required
 from marshmallow import ValidationError
 
 from api2 import db
@@ -8,6 +9,7 @@ from api2.models.posts import PostSchema
 
 
 @bp_api.route('/posts', methods=['GET'])
+@jwt_required()
 def get_list():
     posts = Post.query.all()
     post_schema = PostSchema(many=True)
@@ -16,16 +18,15 @@ def get_list():
     post_type = request.args.get('type')
 
     if post_type:
-        filtered_posts = Post.query.filter(Post.type == post_type)
-        return jsonify(post_schema.dump(filtered_posts))
+        posts = Post.query.filter(Post.type == post_type)
     elif priority:
-        filtered_posts = Post.query.filter(Post.priority == priority)
-        return jsonify(post_schema.dump(filtered_posts))
+        posts = Post.query.filter(Post.priority == priority)
 
     return jsonify(post_schema.dump(posts))
 
 
 @bp_api.route('/posts/<int:post_id>/get', methods=['GET'])
+@jwt_required()
 def get_one_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
     if not post:
@@ -36,6 +37,7 @@ def get_one_post(post_id):
 
 
 @bp_api.route('/posts/<int:post_id>/update', methods=['PATCH'])
+@jwt_required()
 def update_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
 
@@ -56,6 +58,7 @@ def update_post(post_id):
 
 
 @bp_api.route('/posts/<int:post_id>/delete', methods=['DELETE'])
+@jwt_required()
 def delete_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
 
@@ -69,6 +72,7 @@ def delete_post(post_id):
 
 
 @bp_api.route('/posts/create', methods=['POST'])
+@jwt_required()
 def add_post():
     json_data = request.json
 
