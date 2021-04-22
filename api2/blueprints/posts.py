@@ -1,4 +1,4 @@
-from flask import request, abort
+from flask import request, abort, jsonify
 from marshmallow import ValidationError
 
 from api2 import db
@@ -11,7 +11,18 @@ from api2.models.posts import PostSchema
 def get_list():
     posts = Post.query.all()
     post_schema = PostSchema(many=True)
-    return post_schema.dump(posts)
+
+    priority = request.args.get('priority')
+    post_type = request.args.get('type')
+
+    if post_type:
+        filtered_posts = Post.query.filter(Post.type == post_type)
+        return jsonify(post_schema.dump(filtered_posts))
+    elif priority:
+        filtered_posts = Post.query.filter(Post.priority == priority)
+        return jsonify(post_schema.dump(filtered_posts))
+
+    return jsonify(post_schema.dump(posts))
 
 
 @bp_api.route('/posts/<int:post_id>/get', methods=['GET'])
