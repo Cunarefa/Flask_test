@@ -11,7 +11,7 @@ from api2.models.posts import PostSchema
 @bp_api.route('/posts', methods=['GET'])
 @jwt_required()
 def get_list():
-    posts = Post.query.all()
+    posts = db.session.query(Post)
     post_schema = PostSchema(many=True)
 
     priority = request.args.get('priority')
@@ -19,8 +19,8 @@ def get_list():
 
     if post_type:
         posts = Post.query.filter(Post.type == post_type)
-    elif priority:
-        posts = Post.query.filter(Post.priority == priority)
+    if priority:
+        posts = posts.filter(Post.priority == priority)
 
     return jsonify(post_schema.dump(posts))
 
@@ -33,7 +33,7 @@ def get_one_post(post_id):
         return abort(404, description='No post with such id')
 
     post_schema = PostSchema()
-    return post_schema.dump(post)
+    return post_schema.dump(post), 200
 
 
 @bp_api.route('/posts/<int:post_id>/update', methods=['PATCH'])

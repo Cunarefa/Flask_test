@@ -8,7 +8,6 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
 ma = Marshmallow()
 login_manager = LoginManager()
@@ -16,6 +15,7 @@ jwt = JWTManager()
 migrate = Migrate()
 
 load_dotenv()
+
 
 def create_app():
     app = Flask(__name__)
@@ -36,4 +36,3 @@ def create_app():
     app.register_blueprint(bp_auth, url_prefix='/api')
 
     return app
-

@@ -21,7 +21,7 @@ class User(db.Model):
         return token
 
 
-class UserSchema(ma.Schema):
+class UserRegisterSchema(ma.Schema):
     class Meta:
         unknown = EXCLUDE
 
@@ -29,3 +29,13 @@ class UserSchema(ma.Schema):
     username = fields.String(required=True, validate=validate.Length(min=3))
     email = fields.Email(required=True, validate=validate.Length(max=100))
     password = fields.String(required=True, validate=validate.Length(max=128), load_only=True)
+
+
+class UserLoginSchema(ma.Schema):
+    class Meta:
+        unknown = EXCLUDE
+
+    id = fields.Int(dump_only=True)
+    username = fields.String(required=True, validate=validate.Length(min=3))
+    password = fields.String(required=True, validate=validate.Length(max=128), load_only=True)
+    email = fields.Email(validate=validate.Length(max=100))
