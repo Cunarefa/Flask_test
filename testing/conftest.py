@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 
 import pytest
@@ -26,6 +27,10 @@ def user():
     user = User(
         username="testuser1",
         password="12345",
-        email="aldsojkpy1@msail.ru"
+        email="aldo@msail.ru",
+        role="VIEWER",
+        country="France",
+        sex="MALE",
+        date_of_birth=datetime.strptime('20-01-1999', '%d-%m-%Y').date()
     )
     return user
