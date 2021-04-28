@@ -14,6 +14,7 @@ class Post(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow())
     type = db.Column(db.String(255))
     priority = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __repr__(self):
         return self.title
@@ -30,3 +31,4 @@ class PostSchema(ma.Schema):
     updated_at = fields.DateTime(dump_only=True)
     type = fields.String(validate=validate.Length(max=255))
     priority = fields.Integer()
+    user_id = fields.Integer(dump_only=True)

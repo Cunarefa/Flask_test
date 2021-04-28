@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
 ma = Marshmallow()
 login_manager = LoginManager()
@@ -30,9 +31,10 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db)
 
-    from api2.blueprints import bp_api, bp_auth
+    from api2.blueprints import bp_api, bp_auth, like_api
 
     app.register_blueprint(bp_api, url_prefix='/api')
     app.register_blueprint(bp_auth, url_prefix='/api')
+    app.register_blueprint(like_api, url_prefix='/api')
 
     return app
