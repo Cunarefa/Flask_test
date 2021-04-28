@@ -15,6 +15,7 @@ class Post(db.Model):
     type = db.Column(db.String(255))
     priority = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')
 
     def __repr__(self):
         return self.title

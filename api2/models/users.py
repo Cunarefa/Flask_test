@@ -26,6 +26,7 @@ class User(db.Model):
     sex = db.Column(db.Enum(Sex))
     age = db.Column('user_age', db.Integer)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
     liked = db.relationship('Post', secondary=likes, primaryjoin=(likes.c.user_id == id),
                             secondaryjoin=(likes.c.post_id == Post.id),
                             backref='likes', lazy='dynamic')
