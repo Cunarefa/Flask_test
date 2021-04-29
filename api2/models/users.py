@@ -3,12 +3,14 @@ from flask_jwt_extended import create_access_token
 from marshmallow import fields, validate, EXCLUDE
 from api2 import db, ma, jwt
 from api2.models import Post
+from api2.models.comments import Comment
 from api2.models.enums import Role, Sex
 from marshmallow_enum import EnumField
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from api2.models.likes_table import likes
+
 
 DATE_FORMAT = '%d-%m-%Y'
 
@@ -26,10 +28,10 @@ class User(db.Model):
     sex = db.Column(db.Enum(Sex))
     age = db.Column('user_age', db.Integer)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
-    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', foreign_keys='Comment.author', backref='comment_author', lazy='dynamic')
     liked = db.relationship('Post', secondary=likes, primaryjoin=(likes.c.user_id == id),
                             secondaryjoin=(likes.c.post_id == Post.id),
-                            backref='likes', lazy='dynamic')
+                            backref='user_liked', lazy='dynamic')
 
     def __repr__(self):
         return self.username
@@ -60,10 +62,23 @@ class User(db.Model):
     def has_liked(self, post):
         return self.liked.filter(likes.c.post_id == post.id).count() > 0
 
+    def comment_post(self, post, content):
+        if not self.has_commented(post):
+            comment = Comment(author=self.id, post_id=post.id, content=content)
+            db.session.add(comment)
 
-@jwt.user_identity_loader
-def user_identity_lookup(user):
-    return user.id
+    def delete_comment(self, post):
+        if self.has_commented(post):
+            Comment.query.filter_by(author=self.id, post_id=post.id).delete()
+
+    def has_commented(self, post):
+        return Comment.query.filter(Comment.author == self.id,
+                                    Comment.post_id == post.id).count() > 0
+
+
+# @jwt.user_identity_loader
+# def user_identity_lookup(user):
+#     return user.id
 
 
 @jwt.user_lookup_loader
