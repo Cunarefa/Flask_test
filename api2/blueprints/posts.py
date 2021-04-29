@@ -25,7 +25,7 @@ def get_list():
     return jsonify(post_schema.dump(posts))
 
 
-@bp_api.route('/posts/<int:post_id>/get', methods=['GET'])
+@bp_api.route('/posts/get/<int:post_id>', methods=['GET'])
 @jwt_required()
 def get_one_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
@@ -36,7 +36,7 @@ def get_one_post(post_id):
     return post_schema.dump(post), 200
 
 
-@bp_api.route('/posts/<int:post_id>/update', methods=['PATCH'])
+@bp_api.route('/posts/update/<int:post_id>', methods=['PATCH'])
 @jwt_required()
 def update_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
@@ -57,7 +57,7 @@ def update_post(post_id):
     return post_schema.dump(post)
 
 
-@bp_api.route('/posts/<int:post_id>/delete', methods=['DELETE'])
+@bp_api.route('/posts/delete/<int:post_id>', methods=['DELETE'])
 @jwt_required()
 def delete_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
