@@ -63,13 +63,12 @@ class User(db.Model):
         return self.liked.filter(likes.c.post_id == post.id).count() > 0
 
     def comment_post(self, post, content):
-        if not self.has_commented(post):
-            comment = Comment(author=self.id, post_id=post.id, content=content)
-            db.session.add(comment)
+        comment = Comment(author=self.id, post_id=post.id, content=content)
+        db.session.add(comment)
 
-    def delete_comment(self, post):
+    def delete_comment(self, post, comment_id):
         if self.has_commented(post):
-            Comment.query.filter_by(author=self.id, post_id=post.id).delete()
+            Comment.query.filter_by(id=comment_id, post_id=post.id).delete()
 
     def has_commented(self, post):
         return Comment.query.filter(Comment.author == self.id,
