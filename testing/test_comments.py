@@ -20,7 +20,7 @@ def test_delete_comment(client, user, user_register, headers):
     data = {"content": "I proud of you"}
     client.post('/api/comments/add/onPost/1', json=data, headers=headers)
 
-    sd = client.delete('/api/comments/delete/1/comment/fromPost/1', headers=headers)
+    sd = client.delete('/api/comments/delete/comment/1/fromPost/1', headers=headers)
     assert sd.status_code == 200
 
 
