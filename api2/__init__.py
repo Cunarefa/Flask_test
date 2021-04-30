@@ -36,6 +36,6 @@ def create_app():
     app.register_blueprint(bp_api, url_prefix='/api')
     app.register_blueprint(bp_auth, url_prefix='/api')
     app.register_blueprint(like_api, url_prefix='/api')
-    app.register_blueprint(comment_api, url_prefix='/api')
+    app.register_blueprint(comment_api, url_prefix='/api/comments')
 
     return app
