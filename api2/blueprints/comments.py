@@ -36,7 +36,7 @@ def post_comments_list(post_id):
     return jsonify(schema.dump(comments))
 
 
-@comment_api.route('/delete/<int:comment_id>', methods=["DELETE"])
+@comment_api.route('/delete/comment/<int:comment_id>/fromPost/<int:post_id>', methods=["DELETE"])
 @jwt_required()
 def delete_comment(comment_id, post_id):
     post = Post.query.filter(Post.id == post_id).first_or_404()
