@@ -18,7 +18,7 @@ def get_list():
     post_type = request.args.get('type')
 
     if post_type:
-        posts = Post.query.filter(Post.type == post_type)
+        posts = posts.filter(Post.type == post_type)
     if priority:
         posts = posts.filter(Post.priority == priority)
 
@@ -92,3 +92,19 @@ def add_post():
     db.session.add(post)
     db.session.commit()
     return post_schema.dump(post), 201
+
+
+@bp_api.route('/posts/user/<int:user_id>', methods=['GET'])
+def posts_of_user(user_id):
+    post_schema = PostSchema(many=True)
+    posts = Post.query.filter(Post.user_id == user_id).all()
+
+    priority = request.args.get('priority')
+    post_type = request.args.get('type')
+
+    if post_type:
+        posts = posts.filter(Post.type == post_type)
+    if priority:
+        posts = posts.filter(Post.priority == priority)
+
+    return jsonify(post_schema.dump(posts))
