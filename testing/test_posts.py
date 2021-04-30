@@ -1,7 +1,7 @@
 from flask_jwt_extended import create_access_token
 
 
-def test_posts_list(client, user):
+def test_posts_list(client, user, user_register):
     access_token = create_access_token(identity=user.username)
     headers = {
         'Authorization': 'Bearer {}'.format(access_token)
@@ -15,7 +15,7 @@ def test_posts_without_token(client):
     assert rv.status_code == 401
 
 
-def test_posts_create(client, user):
+def test_posts_create(client, user, user_register):
     access_token = create_access_token(identity=user.username)
     headers = {
         'Authorization': 'Bearer {}'.format(access_token)
@@ -30,18 +30,18 @@ def test_posts_create(client, user):
     assert rv.status_code == 201
 
 
-def test_posts_one(client, user):
-    test_posts_create(client, user)
+def test_posts_one(client, user, user_register):
+    test_posts_create(client, user, user_register)
     access_token = create_access_token(identity=user.username)
     headers = {
         'Authorization': 'Bearer {}'.format(access_token)
     }
-    rv = client.get('/api/posts/1/get', headers=headers)
+    rv = client.get('/api/posts/get/1', headers=headers)
     assert rv.status_code == 200
 
 
-def test_posts_none(client, user):
-    test_posts_create(client, user)
+def test_posts_none(client, user, user_register):
+    test_posts_create(client, user, user_register)
     access_token = create_access_token(identity=user.username)
     headers = {
         'Authorization': 'Bearer {}'.format(access_token)

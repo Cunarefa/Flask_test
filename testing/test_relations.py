@@ -30,16 +30,3 @@ def test_unlike(client, user):
     assert user.has_liked(post) is False
     assert user.has_liked(post2) is False
 
-
-def test_comments(client, user):
-    post = Post(title="Boria2", type="Siqwell")
-    db.session.add(user)
-    db.session.add(post)
-    db.session.commit()
-
-    data = {"content": "I proud of you"}
-    content = data['content']
-    user.comment_post(post, content)
-    post.post_comments
-    assert user.has_commented(post)
-    assert post.comments.count() == 1

@@ -1,8 +1,13 @@
+from flask_jwt_extended import create_access_token
+
+from api2 import db
 from testing.test_registration import test_register
 
 
 def test_login(client, user):
     test_register(client, user)
+    # db.session.add(user)
+    # db.session.commit()
     data = {
         "username": user.username,
         "password": user.password
