@@ -1,5 +1,6 @@
 import datetime
 
+from sqlalchemy import func
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from api2 import db, ma
@@ -30,6 +31,10 @@ class Post(db.Model):
     def post_comments(self):
         post = Post.query.filter(Post.id == self.id).first_or_404()
         return post.comments.count()
+
+    @hybrid_property
+    def order_by_likes_quantity(self):
+        return Post.query.outerjoin(likes).group_by(Post.id).order_by(db.func.count(likes.id).desc())
 
     def __repr__(self):
         return self.title

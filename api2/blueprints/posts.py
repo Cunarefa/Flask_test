@@ -1,6 +1,7 @@
 from flask import request, abort, jsonify
 from flask_jwt_extended import jwt_required
 from marshmallow import ValidationError
+from sqlalchemy import func, desc
 
 from api2 import db
 from api2.blueprints import bp_api
@@ -95,6 +96,7 @@ def add_post():
 
 
 @bp_api.route('/posts/user/<int:user_id>', methods=['GET'])
+@jwt_required()
 def posts_of_user(user_id):
     post_schema = PostSchema(many=True)
     posts = Post.query.filter(Post.user_id == user_id).all()
@@ -108,3 +110,4 @@ def posts_of_user(user_id):
         posts = posts.filter(Post.priority == priority)
 
     return jsonify(post_schema.dump(posts))
+

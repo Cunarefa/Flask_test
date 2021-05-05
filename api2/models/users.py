@@ -1,6 +1,7 @@
 import datetime
 from flask_jwt_extended import create_access_token
 from marshmallow import fields, validate, EXCLUDE
+
 from api2 import db, ma, jwt
 from api2.models import Post
 from api2.models.comments import Comment
@@ -10,7 +11,6 @@ from marshmallow_enum import EnumField
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from api2.models.likes_table import likes
-
 
 DATE_FORMAT = '%d-%m-%Y'
 
@@ -32,6 +32,7 @@ class User(db.Model):
     liked = db.relationship('Post', secondary=likes, primaryjoin=(likes.c.user_id == id),
                             secondaryjoin=(likes.c.post_id == Post.id),
                             backref='user_liked', lazy='dynamic')
+    roles = db.relationship('Role', backref='user', lazy='dynamic')
 
     def __repr__(self):
         return self.username
@@ -75,17 +76,6 @@ class User(db.Model):
                                     Comment.post_id == post.id).count() > 0
 
 
-# @jwt.user_identity_loader
-# def user_identity_lookup(user):
-#     return user.id
-
-
-@jwt.user_lookup_loader
-def user_lookup_callback(_jwt_header, jwt_data):
-    identity = jwt_data["sub"]
-    return User.query.filter_by(username=identity).one_or_none()
-
-
 class UserRegisterSchema(ma.Schema):
     class Meta:
         unknown = EXCLUDE
@@ -108,3 +98,9 @@ class UserLoginSchema(ma.Schema):
     username = fields.String(required=True, validate=validate.Length(min=3))
     password = fields.String(required=True, validate=validate.Length(max=128), load_only=True)
     email = fields.Email(validate=validate.Length(max=100))
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(username=identity).one_or_none()

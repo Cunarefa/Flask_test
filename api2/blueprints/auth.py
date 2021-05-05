@@ -1,8 +1,9 @@
-from flask import request, make_response, abort
+from flask import request, make_response, abort, current_app, redirect, url_for
+from flask_principal import identity_changed, Identity
 from marshmallow import ValidationError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from api2 import db
+from api2 import db, create_app
 from api2.blueprints import bp_auth
 from api2.models import User
 from api2.models.users import UserLoginSchema, UserRegisterSchema
@@ -42,5 +43,7 @@ def login():
     user = User.query.filter(User.username == username).first()
     if user and check_password_hash(user.password, password):
         token = user.create_jwt_token()
+        identity_changed.send(create_app, identity=Identity(user.username))
         return {"token": token}
     return make_response(f"Couldn't verify!", 401)
+
