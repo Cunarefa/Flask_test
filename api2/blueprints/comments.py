@@ -8,7 +8,7 @@ from api2.models import Post
 from api2.models.comments import CommentSchema, Comment
 
 
-@comment_api.route('/add/onPost/<int:post_id>', methods=['POST'])
+@comment_api.route('/post/<int:post_id>/add/comment', methods=['POST'])
 @jwt_required()
 def add_comment(post_id):
     json_data = request.json
@@ -20,31 +20,33 @@ def add_comment(post_id):
         return abort(400, description=err)
 
     content = data['content']
-    post = Post.query.filter_by(id=post_id).first_or_404()
-    current_user.comment_post(post, content)
+    post = Post.query.filter(Post.id == post_id).first_or_404()
+    comment = Comment(author_id=current_user.id, post_id=post.id, content=content)
+    db.session.add(comment)
     db.session.commit()
 
     return {"message": f"You have just commented the post with {post_id} id."}
 
 
-@comment_api.route('/all/inPost/<int:post_id>', methods=['GET'])
+@comment_api.route('/post/<int:post_id>/comments/all', methods=['GET'])
 @jwt_required()
 def post_comments_list(post_id):
-    comments = Comment.query.filter(Comment.post_id == post_id)
+    post = Post.query.filter(Post.id == post_id).first_or_404()
+    comments = post.comments
     schema = CommentSchema(many=True)
 
     return jsonify(schema.dump(comments))
 
 
-@comment_api.route('/delete/comment/<int:comment_id>/fromPost/<int:post_id>', methods=["DELETE"])
+@comment_api.route('/delete/comment/<int:comment_id>', methods=["DELETE"])
 @jwt_required()
-def delete_comment(comment_id, post_id):
-    post = Post.query.filter(Post.id == post_id).first_or_404()
+def delete_comment(comment_id):
+    comment = Comment.query.filter(Comment.id == comment_id)
 
-    if not current_user.has_commented(post):
-        return abort(400, {"message": "You didn't comment this post"})
+    if not comment:
+        return abort(404, description='No comment with such id')
 
-    current_user.delete_comment(post, comment_id)
+    db.session.delete(comment)
     db.session.commit()
     return {"message": f"Comment with {comment_id} id was deleted."}
 

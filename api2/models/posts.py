@@ -5,7 +5,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from api2 import db, ma
 from marshmallow import fields, validate, EXCLUDE
-from api2.models.likes_table import likes
+from api2.models.likes import likes
 
 
 class Post(db.Model):
@@ -24,19 +24,13 @@ class Post(db.Model):
 
     @hybrid_property
     def likes_quantity(self):
-        post = Post.query.filter(Post.id == self.id).first_or_404()
-        return post.likes.count()
+        return self.likes.count()
 
     @hybrid_property
     def post_comments(self):
-        post = Post.query.filter(Post.id == self.id).first_or_404()
-        return post.comments.count()
+        return self.comments.count()
 
-    @hybrid_property
-    def order_by_likes_quantity(self):
-        return Post.query.outerjoin(likes).group_by(Post.id).order_by(db.func.count(likes.id).desc())
-
-    def __repr__(self):
+    def __str__(self):
         return self.title
 
 

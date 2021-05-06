@@ -1,6 +1,6 @@
 def test_register(client, user):
     user_data = {"username": user.username, "password": user.password, "email": user.email}
-    rv = client.post('/api/register', json=user_data)
+    rv = client.post('/api/auth/register', json=user_data)
     assert rv.status_code == 200
 
 

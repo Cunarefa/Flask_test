@@ -12,7 +12,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(500))
     inserted_at = db.Column(db.DateTime, default=datetime.date.today())
-    author = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
 
@@ -22,5 +22,5 @@ class CommentSchema(ma.Schema):
 
     content = fields.String(validate=validate.Length(max=255), required=True)
     inserted_at = fields.DateTime(dump_only=True)
-    author = fields.Integer(dump_only=True)
+    author_id = fields.Integer(dump_only=True)
     post_id = fields.Integer(dump_only=True)
