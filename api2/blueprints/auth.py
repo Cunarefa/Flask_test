@@ -3,15 +3,15 @@ from marshmallow import ValidationError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from api2 import db
-from api2.blueprints import bp_auth
+from api2.blueprints import auth_api
 from api2.models import User
-from api2.models.users import UserSchema
+from api2.models.users import UserLoginSchema, UserRegisterSchema
 
 
-@bp_auth.route('/register', methods=['POST'])
+@auth_api.route('/register', methods=['POST'])
 def register():
     json_data = request.json
-    post_schema = UserSchema()
+    post_schema = UserRegisterSchema()
 
     try:
         data = post_schema.load(json_data)
@@ -27,13 +27,22 @@ def register():
     return {"token": token}
 
 
-@bp_auth.route('/login', methods=['POST'])
+@auth_api.route('/login', methods=['POST'])
 def login():
-    username = request.json['username']
-    password = request.json['password']
+    json_data = request.get_json()
+
+    user_schema = UserLoginSchema()
+    try:
+        data = user_schema.load(json_data)
+    except ValidationError as err:
+        return abort(400, description=err)
+
+    username = data['username']
+    password = data['password']
 
     user = User.query.filter(User.username == username).first()
-    if check_password_hash(user.password, password):
+    if user and check_password_hash(user.password, password):
         token = user.create_jwt_token()
         return {"token": token}
     return make_response(f"Couldn't verify!", 401)
+
