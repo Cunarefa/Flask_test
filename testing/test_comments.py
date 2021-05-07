@@ -23,13 +23,3 @@ def test_delete_comment(client, user, user_register, headers):
     sd = client.delete('/api/comments/delete/comment/1/fromPost/1', headers=headers)
     assert sd.status_code == 200
 
-
-# def test_update_comment(client, headers):
-#     post = Post(title="Boria2", type="Siqwell")
-#     db.session.add(post)
-#     db.session.commit()
-#
-#     new_data = {"content": "New data"}
-#
-#     rv = client.patch('/api/comments/update/1', json=new_data, headers=headers)
-#     assert rv.status_code == 200

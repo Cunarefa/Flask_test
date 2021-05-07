@@ -6,10 +6,10 @@ from api2 import db
 from api2.blueprints import posts_api
 from api2.models import Post
 from api2.models.posts import PostSchema
-from api2.perm_decorators import admin_required
+from api2.perm_decorators import roles_required
 
 
-@posts_api.route('/', methods=['GET'])
+@posts_api.route('/posts', methods=['GET'])
 @jwt_required()
 def get_list():
     posts = db.session.query(Post)
@@ -26,7 +26,7 @@ def get_list():
     return jsonify(post_schema.dump(posts))
 
 
-@posts_api.route('/get/<int:post_id>', methods=['GET'])
+@posts_api.route('/posts/<int:post_id>', methods=['GET'])
 @jwt_required()
 def get_one_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
@@ -37,8 +37,9 @@ def get_one_post(post_id):
     return post_schema.dump(post), 200
 
 
-@posts_api.route('/update/<int:post_id>', methods=['PATCH'])
+@posts_api.route('/posts/<int:post_id>', methods=['PATCH'])
 @jwt_required()
+@roles_required('Editor')
 def update_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
 
@@ -58,8 +59,9 @@ def update_post(post_id):
     return post_schema.dump(post)
 
 
-@posts_api.route('/delete/<int:post_id>', methods=['DELETE'])
+@posts_api.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
+@roles_required('Editor')
 def delete_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
 
@@ -72,8 +74,9 @@ def delete_post(post_id):
     return {'message': f'Post with {post_id} id was deleted'}, 204
 
 
-@posts_api.route('/create', methods=['POST'])
+@posts_api.route('/posts', methods=['POST'])
 @jwt_required()
+@roles_required('Editor')
 def add_post():
     json_data = request.json
 
@@ -91,7 +94,7 @@ def add_post():
     return post_schema.dump(post), 201
 
 
-@posts_api.route('/user/<int:user_id>', methods=['GET'])
+@posts_api.route('/users/<int:user_id>/posts', methods=['GET'])
 @jwt_required()
 def posts_of_user(user_id):
     post_schema = PostSchema(many=True)
@@ -112,7 +115,7 @@ def posts_of_user(user_id):
 
 @posts_api.route('/testing', methods=['GET'])
 @jwt_required()
-@admin_required
+@roles_required('Editor')
 def testing():
     return {"mes": "Retrieve"}
 
