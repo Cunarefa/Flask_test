@@ -9,10 +9,10 @@ from api2.models.comments import CommentSchema, Comment
 from api2.perm_decorators import roles_required
 
 
-@comment_api.route('/posts/<int:post_id>/comments', methods=['POST'])
+@comment_api.route('/comments', methods=['POST'])
 @jwt_required()
 @roles_required('Editor')
-def add_comment(post_id):
+def add_comment():
     json_data = request.json
     comment_schema = CommentSchema()
 
@@ -26,7 +26,7 @@ def add_comment(post_id):
     db.session.add(comment)
     db.session.commit()
 
-    return {"message": f"You have just commented the post with {post_id} id."}
+    return {"comment": data['content']}
 
 
 @comment_api.route('/posts/<int:post_id>/comments', methods=['GET'])
@@ -43,14 +43,11 @@ def post_comments_list(post_id):
 @jwt_required()
 @roles_required('Editor')
 def delete_comment(comment_id):
-    comment = Comment.query.filter(Comment.id == comment_id)
-
-    if not comment:
-        return abort(404, description='No comment with such id')
+    comment = Comment.query.filter(Comment.id == comment_id).first_or_404()
 
     db.session.delete(comment)
     db.session.commit()
-    return {"message": f"Comment with {comment_id} id was deleted."}
+    return {"message": f"Comment with id - {comment_id} was deleted."}
 
 
 @comment_api.route('/comments/<int:comment_id>', methods=["PATCH"])
