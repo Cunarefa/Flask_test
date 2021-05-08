@@ -5,6 +5,7 @@ from marshmallow import ValidationError
 from api2 import db
 from api2.blueprints import posts_api
 from api2.models import Post
+from api2.models.enums import Role
 from api2.models.posts import PostSchema
 from api2.perm_decorators import roles_required
 
@@ -39,7 +40,7 @@ def get_one_post(post_id):
 
 @posts_api.route('/posts/<int:post_id>', methods=['PATCH'])
 @jwt_required()
-@roles_required('Editor')
+@roles_required(Role.EDITOR)
 def update_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
 
@@ -61,7 +62,7 @@ def update_post(post_id):
 
 @posts_api.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required()
-@roles_required('Editor')
+@roles_required(Role.EDITOR)
 def delete_post(post_id):
     post = Post.query.filter(Post.id == post_id).first()
 
@@ -76,7 +77,7 @@ def delete_post(post_id):
 
 @posts_api.route('/posts', methods=['POST'])
 @jwt_required()
-@roles_required('Editor')
+@roles_required(Role.EDITOR)
 def add_post():
     json_data = request.json
 
@@ -109,14 +110,4 @@ def posts_of_user(user_id):
         posts = posts.filter(Post.priority == priority)
 
     return jsonify(post_schema.dump(posts))
-
-
-
-
-@posts_api.route('/testing', methods=['GET'])
-@jwt_required()
-@roles_required('Editor')
-def testing():
-    return {"mes": "Retrieve"}
-
 

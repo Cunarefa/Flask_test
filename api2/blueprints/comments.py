@@ -6,12 +6,13 @@ from api2 import db
 from api2.blueprints import comment_api
 from api2.models import Post
 from api2.models.comments import CommentSchema, Comment
+from api2.models.enums import Role
 from api2.perm_decorators import roles_required
 
 
 @comment_api.route('/comments', methods=['POST'])
 @jwt_required()
-@roles_required('Editor')
+@roles_required(Role.EDITOR)
 def add_comment():
     json_data = request.json
     comment_schema = CommentSchema()
@@ -41,7 +42,7 @@ def post_comments_list(post_id):
 
 @comment_api.route('comments/<int:comment_id>', methods=["DELETE"])
 @jwt_required()
-@roles_required('Editor')
+@roles_required(Role.EDITOR)
 def delete_comment(comment_id):
     comment = Comment.query.filter(Comment.id == comment_id).first_or_404()
 
@@ -52,7 +53,7 @@ def delete_comment(comment_id):
 
 @comment_api.route('/comments/<int:comment_id>', methods=["PATCH"])
 @jwt_required()
-@roles_required('Editor')
+@roles_required(Role.EDITOR)
 def update_comment(comment_id):
     comment = Comment.query.filter(Comment.id == comment_id).first_or_404()
     comment_schema = CommentSchema()
