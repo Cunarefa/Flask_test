@@ -2,7 +2,7 @@ from flask_jwt_extended import jwt_required, current_user
 
 from api2 import db
 from api2.blueprints import like_api
-from api2.models import Post, User
+from api2.models import Post
 from api2.models.likes import likes
 from api2.perm_decorators import roles_required
 
