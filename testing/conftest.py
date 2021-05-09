@@ -29,21 +29,17 @@ def user():
         username="testuser1",
         password="12345",
         email="aldo@msail.ru",
-        role="VIEWER",
+        role="EDITOR",
         country="France",
         sex="MALE",
         date_of_birth=datetime.strptime('20-01-1999', '%d-%m-%Y').date()
     )
+    db.session.add(user)
+    db.session.commit()
     return user
 
 
 @pytest.fixture
-def user_register(user):
-    db.session.add(user)
-    db.session.commit()
-
-
-@pytest.fixture
-def headers(user, user_register):
+def headers(user):
     access_token = create_access_token(identity=user.username)
     return {'Authorization': 'Bearer {}'.format(access_token)}

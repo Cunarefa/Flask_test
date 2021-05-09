@@ -1,7 +1,7 @@
-def test_register(client, user):
-    user_data = {"username": user.username, "password": user.password, "email": user.email}
-    rv = client.post('/api/auth/register', json=user_data)
-    assert rv.status_code == 200
+def test_register(client):
+    user_data = {"username": "nombre", "password": "12345", "email": "alfa@mail.ru"}
+    rv = client.post('/api/register', json=user_data)
+    assert {"token": rv.get_json('token')}
 
 
 def test_invalid_register_input_data(client):
