@@ -17,7 +17,7 @@ def like_post(post_id):
     if not like:
         current_user.liked_posts.append(post)
         db.session.commit()
-        return {"message": f"The post with {post.title} id was liked"}
+        return {"message": f"The post with {post.title} title was liked"}
     return {"message": "You have already liked this post, Bitch"}
 
 
