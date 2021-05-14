@@ -25,6 +25,7 @@ class User(db.Model):
     country = db.Column(db.String(100))
     role = db.Column(db.Enum(Role))
     sex = db.Column(db.Enum(Sex))
+    deleted = db.Column(db.Boolean(), default=False)
     posts = db.relationship('Post', backref='author_id', lazy='dynamic')
     comments = db.relationship('Comment', foreign_keys='Comment.author_id', backref='author', lazy='dynamic')
     liked_posts = db.relationship('Post', secondary=likes, primaryjoin=(likes.c.user_id == id),

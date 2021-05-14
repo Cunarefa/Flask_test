@@ -4,7 +4,7 @@ from marshmallow import ValidationError
 
 from api2 import db
 from api2.blueprints import posts_api
-from api2.models import Post
+from api2.models import Post, User
 from api2.models.enums import Role
 from api2.models.posts import PostSchema
 from api2.perm_decorators import roles_required
@@ -98,6 +98,10 @@ def add_post():
 @posts_api.route('/users/<int:user_id>/posts', methods=['GET'])
 @jwt_required()
 def posts_of_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.deleted:
+        abort(404)
+
     post_schema = PostSchema(many=True)
     posts = Post.query.filter(Post.user_id == user_id)
 
