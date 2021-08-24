@@ -12,7 +12,7 @@ def test_posts_create(client, headers):
         "title": "Hobbit",
         "description": "Unexpected journey",
         "type": "Movie",
-        "priority": 1
+        "priority": 2
     }
     rv = client.post('/api/posts', json=data, headers=headers)
     assert rv.status_code == 201
@@ -24,7 +24,7 @@ def test_posts_one(client, headers):
     assert rv.status_code == 200
 
     rv = client.get('/api/posts/2', headers=headers)
-    assert b"No post with such id" in rv.data, 404
+    assert rv.status_code == 404
 
 
 def test_user_all_posts(client, user, headers):
