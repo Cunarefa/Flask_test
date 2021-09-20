@@ -30,11 +30,12 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db)
 
-    from api2.blueprints import posts_api, auth_api, like_api, comment_api
+    from api2.blueprints import posts_api, auth_api, like_api, comment_api, user_api
 
-    app.register_blueprint(posts_api, url_prefix='/api/posts')
-    app.register_blueprint(auth_api, url_prefix='/api/auth')
-    app.register_blueprint(like_api, url_prefix='/api/likes')
-    app.register_blueprint(comment_api, url_prefix='/api/comments')
+    app.register_blueprint(posts_api, url_prefix='/api')
+    app.register_blueprint(auth_api, url_prefix='/api')
+    app.register_blueprint(like_api, url_prefix='/api')
+    app.register_blueprint(comment_api, url_prefix='/api')
+    app.register_blueprint(user_api, url_prefix='/api')
 
     return app

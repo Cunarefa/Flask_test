@@ -11,10 +11,10 @@ from api2.models.users import UserLoginSchema, UserRegisterSchema
 @auth_api.route('/register', methods=['POST'])
 def register():
     json_data = request.json
-    post_schema = UserRegisterSchema()
+    user_schema = UserRegisterSchema()
 
     try:
-        data = post_schema.load(json_data)
+        data = user_schema.load(json_data)
     except ValidationError as err:
         return abort(400, description=err)
 
@@ -24,7 +24,7 @@ def register():
     db.session.commit()
 
     token = user.create_jwt_token()
-    return {"token": token}
+    return {"token": token, "user": user_schema.dump(user)}
 
 
 @auth_api.route('/login', methods=['POST'])
@@ -43,6 +43,6 @@ def login():
     user = User.query.filter(User.username == username).first()
     if user and check_password_hash(user.password, password):
         token = user.create_jwt_token()
-        return {"token": token}
+        return {"token": token, "user": user_schema.dump(user)}
     return make_response(f"Couldn't verify!", 401)
 

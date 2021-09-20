@@ -23,4 +23,4 @@ class CommentSchema(ma.Schema):
     content = fields.String(validate=validate.Length(max=255), required=True)
     inserted_at = fields.DateTime(dump_only=True)
     author_id = fields.Integer(dump_only=True)
-    post_id = fields.Integer(dump_only=True)
+    post_id = fields.Integer(required=True)
